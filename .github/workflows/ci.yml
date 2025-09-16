@@ -7,7 +7,7 @@ on:
     branches: [main, develop]
 
 env:
-  GO_VERSION: "1.24.1"
+  GO_VERSION: "1.23.x"
   GO_VERSION_LINT: "1.23.x"
 
 jobs:
@@ -75,7 +75,7 @@ jobs:
           go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.61.0
 
       - name: Run golangci-lint
-        run: $(go env GOPATH)/bin/golangci-lint run --out-format=github-actions --fast --timeout=5m
+        run: $(go env GOPATH)/bin/golangci-lint run --out-format=colored-line-number --fast --timeout=5m
 
   build:
     name: Build
