@@ -59,33 +59,21 @@ jobs:
         include:
           - os: linux
             arch: amd64
-            goos: linux
-            goarch: amd64
             ext: ""
           - os: linux
             arch: arm64
-            goos: linux
-            goarch: arm64
             ext: ""
           - os: windows
             arch: amd64
-            goos: windows
-            goarch: amd64
             ext: ".exe"
           - os: windows
             arch: arm64
-            goos: windows
-            goarch: arm64
             ext: ".exe"
           - os: darwin
             arch: amd64
-            goos: darwin
-            goarch: amd64
             ext: ""
           - os: darwin
             arch: arm64
-            goos: darwin
-            goarch: arm64
             ext: ""
 
     steps:
@@ -124,7 +112,7 @@ jobs:
       - name: Build binary
         run: |
           mkdir -p dist/${{ matrix.os }}-${{ matrix.arch }}
-          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build \
+          GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build \
             -ldflags "-X main.version=${{ steps.version.outputs.version }}" \
             -o dist/${{ matrix.os }}-${{ matrix.arch }}/${{ env.BINARY_NAME }}${{ matrix.ext }} \
             ./cmd/openserial
