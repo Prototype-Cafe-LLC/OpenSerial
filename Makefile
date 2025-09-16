@@ -2,7 +2,7 @@
 
 # Variables
 BINARY_NAME=openserial
-VERSION=1.0.0
+VERSION=0.1.0
 BUILD_DIR=build
 GO_FILES=$(shell find . -name "*.go" -not -path "./vendor/*")
 
