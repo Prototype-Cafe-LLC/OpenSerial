@@ -198,27 +198,9 @@ jobs:
         run: |
           mkdir -p release-assets
 
-          # Copy all binaries to release-assets with proper naming
-          for dir in dist/*/; do
-            platform=$(basename "$dir")
-            for file in "$dir"*; do
-              if [[ -f "$file" && ! "$file" =~ \.sha256$ ]]; then
-                filename=$(basename "$file")
-                cp "$file" "release-assets/${{ env.BINARY_NAME }}-$platform-$filename"
-              fi
-            done
-          done
-
-          # Copy checksums
-          for dir in dist/*/; do
-            platform=$(basename "$dir")
-            for file in "$dir"*.sha256; do
-              if [[ -f "$file" ]]; then
-                filename=$(basename "$file")
-                cp "$file" "release-assets/${{ env.BINARY_NAME }}-$platform-$filename"
-              fi
-            done
-          done
+          # Copy all binaries and checksums directly (they already have correct naming)
+          find dist -type f \( -name "*" ! -name "*.sha256" \) -exec cp {} release-assets/ \;
+          find dist -type f -name "*.sha256" -exec cp {} release-assets/ \;
 
           # Create a combined checksums file
           find release-assets -name "*.sha256" -exec cat {} \; > release-assets/checksums.txt
