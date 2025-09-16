@@ -7,13 +7,13 @@ import (
 	"time"
 
 	"github.com/openserial/openserial/internal/config"
-	"github.com/tarm/serial"
+	"go.bug.st/serial"
 )
 
 // Handler manages serial port communication
 type Handler struct {
 	config      *config.SerialConfig
-	port        *serial.Port
+	port        serial.Port
 	mu          sync.RWMutex
 	isOpen      bool
 	readBuffer  []byte
@@ -45,16 +45,14 @@ func (h *Handler) Open() error {
 	}
 
 	// Configure serial port
-	serialConfig := &serial.Config{
-		Name:        h.config.Port,
-		Baud:        h.config.BaudRate,
-		Size:        byte(h.config.DataBits),
-		StopBits:    serial.StopBits(h.config.StopBits),
-		Parity:      h.getParity(),
-		ReadTimeout: h.config.GetReadTimeout(),
+	mode := &serial.Mode{
+		BaudRate: h.config.BaudRate,
+		DataBits: h.config.DataBits,
+		StopBits: h.getStopBits(),
+		Parity:   h.getParity(),
 	}
 
-	port, err := serial.OpenPort(serialConfig)
+	port, err := serial.Open(h.config.Port, mode)
 	if err != nil {
 		return fmt.Errorf("failed to open serial port %s: %w", h.config.Port, err)
 	}
@@ -169,16 +167,14 @@ func (h *Handler) Reconnect() error {
 	time.Sleep(1 * time.Second)
 
 	// Try to open again
-	serialConfig := &serial.Config{
-		Name:        h.config.Port,
-		Baud:        h.config.BaudRate,
-		Size:        byte(h.config.DataBits),
-		StopBits:    serial.StopBits(h.config.StopBits),
-		Parity:      h.getParity(),
-		ReadTimeout: h.config.GetReadTimeout(),
+	mode := &serial.Mode{
+		BaudRate: h.config.BaudRate,
+		DataBits: h.config.DataBits,
+		StopBits: h.getStopBits(),
+		Parity:   h.getParity(),
 	}
 
-	port, err := serial.OpenPort(serialConfig)
+	port, err := serial.Open(h.config.Port, mode)
 	if err != nil {
 		return fmt.Errorf("failed to reconnect serial port %s: %w", h.config.Port, err)
 	}
@@ -192,15 +188,27 @@ func (h *Handler) Reconnect() error {
 func (h *Handler) getParity() serial.Parity {
 	switch h.config.Parity {
 	case "odd":
-		return serial.ParityOdd
+		return serial.OddParity
 	case "even":
-		return serial.ParityEven
+		return serial.EvenParity
 	case "mark":
-		return serial.ParityMark
+		return serial.MarkParity
 	case "space":
-		return serial.ParitySpace
+		return serial.SpaceParity
 	default:
-		return serial.ParityNone
+		return serial.NoParity
+	}
+}
+
+// getStopBits converts int stop bits to serial.StopBits
+func (h *Handler) getStopBits() serial.StopBits {
+	switch h.config.StopBits {
+	case 1:
+		return serial.OneStopBit
+	case 2:
+		return serial.TwoStopBits
+	default:
+		return serial.OneStopBit
 	}
 }
 

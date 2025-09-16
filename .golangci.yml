@@ -1,0 +1,35 @@
+run:
+  timeout: 5m
+  issues-exit-code: 1
+  tests: true
+
+linters:
+  disable-all: true
+  enable:
+    - errcheck
+    - ineffassign
+    - gofmt
+    - goimports
+    - revive
+    - misspell
+    - gocyclo
+
+linters-settings:
+  revive:
+    severity: warning
+    rules:
+      - name: indent-error-flow
+      - name: error-return
+      - name: var-naming
+        disabled: true
+  gocyclo:
+    min-complexity: 20
+
+issues:
+  exclude-dirs:
+    - build
+    - dist
+    - examples
+    - scripts
+  exclude-files:
+    - '.*\.pb\.go$'
