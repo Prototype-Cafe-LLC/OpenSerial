@@ -7,9 +7,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/openserial/openserial/internal/bridge"
-	"github.com/openserial/openserial/internal/config"
-	"github.com/openserial/openserial/pkg/logger"
+	"github.com/Prototype-Cafe-LLC/OpenSerial/internal/bridge"
+	"github.com/Prototype-Cafe-LLC/OpenSerial/internal/config"
+	"github.com/Prototype-Cafe-LLC/OpenSerial/pkg/logger"
 )
 
 const (

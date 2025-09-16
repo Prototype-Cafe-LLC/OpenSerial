@@ -33,7 +33,7 @@ Download the latest release for your platform from the [releases page](https://g
 2. Clone the repository:
 
    ```bash
-   git clone https://github.com/openserial/openserial
+   git clone https://github.com/Prototype-Cafe-LLC/OpenSerial
    cd openserial
    ```
 
@@ -284,7 +284,7 @@ OpenSerial includes comprehensive error handling:
 ### Development Setup
 
 ```bash
-git clone https://github.com/openserial/openserial
+git clone https://github.com/Prototype-Cafe-LLC/OpenSerial
 cd openserial
 go mod download
 make build
