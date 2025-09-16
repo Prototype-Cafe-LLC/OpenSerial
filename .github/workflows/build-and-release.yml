@@ -116,7 +116,7 @@ jobs:
             -ldflags "-X main.version=${{ steps.version.outputs.version }}" \
             -o dist/${{ matrix.os }}-${{ matrix.arch }}/${{ env.BINARY_NAME }}-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }} \
             ./cmd/openserial
-          
+
           # For macOS binaries, remove quarantine attribute to avoid security warnings
           if [[ "${{ matrix.os }}" == "darwin" ]]; then
             xattr -d com.apple.quarantine dist/${{ matrix.os }}-${{ matrix.arch }}/${{ env.BINARY_NAME }}-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }} || true
