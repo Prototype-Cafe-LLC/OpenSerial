@@ -25,7 +25,7 @@ and industrial applications.
 
 ### Binary Releases
 
-Download the latest release for your platform from the [releases page](https://github.com/openserial/openserial/releases).
+Download the latest release for your platform from the [releases page](https://github.com/Prototype-Cafe-LLC/OpenSerial/releases).
 
 ### Build from Source
 
@@ -160,7 +160,9 @@ network:
 - Make (optional, for using Makefile)
 
 ### macOS Security Warning
-If you get a security warning when opening the macOS binary, this is normal for unsigned binaries. To resolve:
+
+If you get a security warning when opening the macOS binary, this is normal for
+unsigned binaries. To resolve:
 
 ```bash
 # Remove quarantine attribute
