@@ -159,6 +159,18 @@ network:
 - Go 1.25 or later
 - Make (optional, for using Makefile)
 
+### macOS Security Warning
+If you get a security warning when opening the macOS binary, this is normal for unsigned binaries. To resolve:
+
+```bash
+# Remove quarantine attribute
+xattr -d com.apple.quarantine openserial-darwin-amd64
+# or
+xattr -d com.apple.quarantine openserial-darwin-arm64
+```
+
+Alternatively, right-click the binary and select "Open" from the context menu.
+
 ### Build Commands
 
 ```bash
