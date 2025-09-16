@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/openserial/openserial/internal/config"
+	"github.com/Prototype-Cafe-LLC/OpenSerial/internal/config"
 	"go.bug.st/serial"
 )
 

@@ -5,9 +5,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/openserial/openserial/internal/config"
-	"github.com/openserial/openserial/internal/network"
-	"github.com/openserial/openserial/internal/serial"
+	"github.com/Prototype-Cafe-LLC/OpenSerial/internal/config"
+	"github.com/Prototype-Cafe-LLC/OpenSerial/internal/network"
+	"github.com/Prototype-Cafe-LLC/OpenSerial/internal/serial"
 )
 
 // Bridge manages the bidirectional data forwarding between serial and network

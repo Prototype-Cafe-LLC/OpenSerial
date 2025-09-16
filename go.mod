@@ -1,4 +1,4 @@
-module github.com/openserial/openserial
+module github.com/Prototype-Cafe-LLC/OpenSerial
 
 go 1.23.0
 
