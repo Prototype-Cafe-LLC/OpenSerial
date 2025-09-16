@@ -1,0 +1,11 @@
+serial:
+  port: "/dev/ttyUSB0"
+  baud_rate: 115200
+  data_bits: 8
+  stop_bits: 1
+  parity: "none"
+  flow_control: "none"
+
+network:
+  listen_port: 8080
+  bind_address: "0.0.0.0"

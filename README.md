@@ -1,242 +1,287 @@
 # OpenSerial
 
-[![Go Version](https://img.shields.io/badge/Go-1.25+-blue.svg)](https://golang.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/Prototype-Cafe-LLC/OpenSerial)
+OpenSerial is a UART-to-TCP bridge agent that enables network access to serial devices.
 
-OpenSerial is a lightweight, cross-platform UART-to-TCP bridge that enables network access to serial devices. Perfect for IoT development, industrial applications, and remote debugging of embedded systems.
+## Overview
 
-## 🚀 Quick Start
+OpenSerial creates a bidirectional bridge between serial ports and TCP network
+connections, allowing remote access to serial devices over the network. It's
+designed as a lightweight, cross-platform solution for IoT, embedded systems,
+and industrial applications.
 
-```bash
-# Download the latest release for your platform
-# Or build from source:
-git clone https://github.com/Prototype-Cafe-LLC/OpenSerial.git
-cd OpenSerial
-go build -o openserial
+## Features
 
-# Run with configuration file
-./openserial --config config.yaml
-```
+- **Bidirectional forwarding**: Serial port ↔ TCP port (TX/RX)
+- **Full serial configuration**: Baud rate, data bits, stop bits, parity, flow control
+- **TCP server mode**: Listen for incoming connections on specified ports
+- **Network interface binding**: Bind to all network interfaces (0.0.0.0)
+- **Configuration files**: Store settings in YAML format
+- **Cross-platform**: Windows, macOS, and Linux support
+- **Automatic reconnection**: Handles serial port and network disconnections
 
-## ✨ Features
-
-### Core Functionality
-
-- **Bidirectional Serial Bridge**: Real-time serial port ↔ TCP port forwarding
-- **Cross-Platform**: Windows, macOS (Intel/Apple Silicon), Linux (x64/ARM64)
-- **Single Binary**: No external dependencies, easy deployment
-- **Configuration File**: YAML/JSON configuration support
-
-### Serial Communication
-
-- Full serial parameter configuration (baud rate, data bits, stop bits, parity, flow control)
-- Automatic serial port reconnection on device disconnection
-- Buffer management with overflow protection
-
-### Network Features
-
-- TCP server mode with configurable listening port
-- Bind to all network interfaces (0.0.0.0)
-- Automatic client connection handling and cleanup
-- Real-time connection status monitoring
-
-## 📋 System Requirements
-
-| Resource | Minimum | Recommended |
-|----------|---------|-------------|
-| **RAM** | 512MB | 1GB |
-| **Storage** | 50MB | 100MB |
-| **OS** | Windows 10+, macOS 10.15+, Linux (kernel 3.10+) | |
-
-## ⚙️ Configuration
-
-Create a `config.yaml` file:
-
-```yaml
-serial:
-  port: "/dev/ttyUSB0"        # Serial port path
-  baud_rate: 115200           # Baud rate
-  data_bits: 8                # Data bits (5-8)
-  stop_bits: 1                # Stop bits (1-2)
-  parity: "none"              # Parity: none, odd, even
-  flow_control: "none"        # Flow control: none, rts/cts, xon/xoff
-
-network:
-  listen_port: 8080           # TCP listening port
-  bind_address: "0.0.0.0"     # Network interface binding
-```
-
-## 🛠️ Installation
+## Installation
 
 ### Binary Releases
 
-Download pre-compiled executables from the [Releases](https://github.com/Prototype-Cafe-LLC/OpenSerial/releases) page.
+Download the latest release for your platform from the [releases page](https://github.com/openserial/openserial/releases).
 
 ### Build from Source
 
-```bash
-# Prerequisites: Go 1.25+
-git clone https://github.com/Prototype-Cafe-LLC/OpenSerial.git
-cd OpenSerial
-go mod download
-go build -o openserial
-```
+1. Install Go 1.25+
+2. Clone the repository:
 
-## 📖 Usage
+   ```bash
+   git clone https://github.com/openserial/openserial
+   cd openserial
+   ```
+
+3. Install dependencies:
+
+   ```bash
+   go mod download
+   ```
+
+4. Build:
+
+   ```bash
+   make build
+   ```
+
+## Usage
 
 ### Basic Usage
 
 ```bash
-# Run with configuration file
-./openserial --config config.yaml
+# Run with default configuration
+./openserial
 
-# On Windows
-openserial.exe --config config.yaml
+# Run with custom configuration file
+./openserial -config /path/to/config.yaml
+
+# Show help
+./openserial -help
+
+# Show version
+./openserial -version
 ```
 
-### Connecting to the Bridge
+### Configuration
 
-Once running, connect to the serial device via TCP:
+Create a configuration file (YAML format):
+
+```yaml
+serial:
+  port: "/dev/ttyUSB0"
+  baud_rate: 115200
+  data_bits: 8
+  stop_bits: 1
+  parity: "none"
+  flow_control: "none"
+
+network:
+  listen_port: 8080
+  bind_address: "0.0.0.0"
+```
+
+#### Configuration Options
+
+**Serial Configuration:**
+
+- `port`: Serial port device path (e.g., "/dev/ttyUSB0", "COM3")
+- `baud_rate`: Baud rate (300, 600, 1200, 2400, 4800, 9600, 19200, 38400,
+  57600, 115200, 230400, 460800, 921600)
+- `data_bits`: Data bits (5-8)
+- `stop_bits`: Stop bits (1-2)
+- `parity`: Parity (none, odd, even, mark, space)
+- `flow_control`: Flow control (none, rts_cts, xon_xoff)
+
+**Network Configuration:**
+
+- `listen_port`: TCP port to listen on (1-65535)
+- `bind_address`: IP address to bind to (e.g., "0.0.0.0" for all interfaces)
+
+### Configuration File Locations
+
+The application looks for configuration files in the following order:
+
+1. File specified with `-config` flag
+2. `./config.yaml`
+3. `./configs/config.yaml`
+4. `/etc/openserial/config.yaml`
+5. `$HOME/.openserial/config.yaml`
+
+## Examples
+
+### Arduino/ESP32 Remote Access
+
+```yaml
+serial:
+  port: "/dev/ttyUSB0"
+  baud_rate: 115200
+  data_bits: 8
+  stop_bits: 1
+  parity: "none"
+  flow_control: "none"
+
+network:
+  listen_port: 8080
+  bind_address: "0.0.0.0"
+```
+
+Connect to your Arduino via TCP:
 
 ```bash
-# Using telnet
 telnet localhost 8080
-
-# Using netcat
-nc localhost 8080
-
-# Using Python
-import socket
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(('localhost', 8080))
 ```
 
-## 🎯 Use Cases
+### Industrial Equipment Monitoring
+
+```yaml
+serial:
+  port: "/dev/ttyS0"
+  baud_rate: 9600
+  data_bits: 8
+  stop_bits: 1
+  parity: "even"
+  flow_control: "rts_cts"
+
+network:
+  listen_port: 502
+  bind_address: "192.168.1.100"
+```
+
+## Building
+
+### Prerequisites
+
+- Go 1.25 or later
+- Make (optional, for using Makefile)
+
+### Build Commands
+
+```bash
+# Build for current platform
+make build
+
+# Build for all platforms
+make build-all
+
+# Run tests
+make test
+
+# Run tests with coverage
+make test-coverage
+
+# Format code
+make fmt
+
+# Lint code
+make lint
+
+# Clean build artifacts
+make clean
+```
+
+### Cross-Platform Building
+
+The Makefile supports building for multiple platforms:
+
+- **Linux**: amd64, arm64
+- **Windows**: amd64, arm64
+- **macOS**: amd64, arm64
+
+## Testing
+
+Run the test suite:
+
+```bash
+# Run all tests
+go test ./...
+
+# Run tests with coverage
+go test -cover ./...
+
+# Run specific package tests
+go test ./internal/config
+```
+
+## Architecture
+
+```text
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   Serial Port   │◄──►│   OpenSerial     │◄──►│   TCP Client    │
+│   (Device)      │    │   Bridge         │    │   (Network)     │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+```
+
+The bridge consists of:
+
+- **Serial Handler**: Manages serial port communication
+- **Network Handler**: Manages TCP server and client connections
+- **Bridge Core**: Coordinates bidirectional data forwarding
+- **Configuration**: Manages settings and validation
+
+## Error Handling
+
+OpenSerial includes comprehensive error handling:
+
+- **Serial Port Errors**: Automatic reconnection on device disconnection
+- **Network Errors**: Client reconnection handling
+- **Buffer Management**: Overflow protection and data integrity
+- **Configuration Validation**: Validates all configuration parameters
+
+## Performance
+
+- **Latency**: < 10ms for local network connections
+- **Throughput**: Support up to 1Mbps serial data rates
+- **Memory Usage**: < 50MB per active bridge
+
+## Use Cases
 
 ### Industrial Applications
 
-- Remote monitoring of PLCs and industrial equipment
+- Remote monitoring of industrial equipment
 - SCADA system integration
-- Equipment diagnostics and maintenance
+- PLC communication bridges
 
 ### IoT Development
 
-- Remote debugging of Arduino/Raspberry Pi projects
-- IoT device management and configuration
-- Sensor data collection and monitoring
+- Remote debugging of embedded devices
+- IoT device management
+- Sensor data collection
 
 ### Educational & Hobby
 
-- Learning serial communication protocols
+- Arduino/Raspberry Pi remote access
 - Electronics project development
-- Remote access to embedded systems
+- Learning serial communication protocols
 
-## 🔧 Development
-
-### Project Structure
-
-```text
-OpenSerial/
-├── cmd/           # Main application entry point
-├── internal/      # Internal packages
-│   ├── bridge/    # Serial-TCP bridge logic
-│   ├── config/    # Configuration management
-│   └── serial/    # Serial port handling
-├── pkg/           # Public packages
-├── configs/       # Example configurations
-└── docs/          # Documentation
-```
-
-### Building and Testing
-
-```bash
-# Install dependencies
-go mod download
-
-# Build
-go build -o openserial ./cmd/openserial
-
-# Run tests
-go test ./...
-
-# Format code
-gofmt -w .
-
-# Lint code
-golangci-lint run
-```
-
-## 📊 Performance
-
-- **Latency**: < 10ms for local network connections
-- **Throughput**: Up to 1Mbps serial data rates
-- **Memory**: < 50MB per active bridge
-- **CPU**: Minimal overhead, optimized for efficiency
-
-## 🔒 Security Considerations
-
-⚠️ **Important**: OpenSerial currently runs without authentication or encryption. Consider your network security when deploying:
-
-- Use in trusted networks only
-- Consider VPN or SSH tunneling for remote access
-- Monitor network traffic and connections
-- Future versions will include TLS encryption and authentication
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+## Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Run the test suite
+6. Submit a pull request
 
 ### Development Setup
 
 ```bash
-# Clone your fork
-git clone git@github.com:yourusername/OpenSerial.git
-cd OpenSerial
-
-# Install dependencies
+git clone https://github.com/openserial/openserial
+cd openserial
 go mod download
-
-# Run tests
-go test ./...
-
-# Build
-go build -o openserial ./cmd/openserial
+make build
 ```
 
-## 📝 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
+## Support
 
-- **Issues**: [GitHub Issues](https://github.com/Prototype-Cafe-LLC/OpenSerial/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/Prototype-Cafe-LLC/OpenSerial/discussions)
-- **Documentation**: [Wiki](https://github.com/Prototype-Cafe-LLC/OpenSerial/wiki)
+For issues and questions:
 
-## 🗺️ Roadmap
-
-### Current Scope (v1.0)
-
-- ✅ Basic serial-to-TCP forwarding
-- ✅ Cross-platform support
-- ✅ Configuration file support
-- ✅ Single client connection
-
-### Future Enhancements
-
-- 🔄 Multiple serial port support
-- 🔄 Web-based management interface
-- 🔄 TLS encryption support
-- 🔄 Authentication and authorization
-- 🔄 Advanced logging and monitoring
-
----
-
-**Made with ❤️ by [Prototype Cafe LLC](https://prototypecafe.com)**
+- Create an issue on GitHub
+- Check the documentation
+- Review the test cases for usage examples

@@ -1,0 +1,45 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+docs/
+
+# Build artifacts
+build/
+dist/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+*_test.go
+test_*
+coverage.out
+coverage.html
+
+# Examples
+examples/
+
+# CI/CD
+.github/
+
+# Temporary files
+*.tmp
+*.log
+
+# Go specific
+vendor/

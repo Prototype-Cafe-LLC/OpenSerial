@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  openserial:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VERSION: ${VERSION:-dev}
+    image: openserial/openserial:${VERSION:-latest}
+    container_name: openserial
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./configs:/etc/openserial:ro
+      - /dev/ttyUSB0:/dev/ttyUSB0:rw # Adjust device path as needed
+      - openserial-logs:/var/log/openserial
+    environment:
+      - TZ=UTC
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0 # Adjust device path as needed
+    privileged: true # Required for serial device access
+    networks:
+      - openserial-network
+
+  # Optional: Add a simple web interface for monitoring
+  openserial-web:
+    image: nginx:alpine
+    container_name: openserial-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./web:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - openserial
+    networks:
+      - openserial-network
+
+volumes:
+  openserial-logs:
+
+networks:
+  openserial-network:
+    driver: bridge
