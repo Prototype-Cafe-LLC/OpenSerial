@@ -175,6 +175,38 @@ openserial --config /etc/openserial/config.yaml
 - Document all public APIs
 - Follow semantic versioning
 
+## Testing
+
+### Test Plan
+
+A comprehensive test plan has been developed to ensure OpenSerial meets all functional, performance, and quality requirements. The test plan covers:
+
+- **Unit Tests**: Configuration management, serial port handling, network management, and data forwarding
+- **Integration Tests**: End-to-end bridge functionality and configuration integration
+- **Performance Tests**: Latency (< 10ms), throughput (up to 1Mbps), and memory usage (< 50MB)
+- **Cross-Platform Tests**: Windows, macOS, and Linux compatibility validation
+- **Error Handling Tests**: Serial port errors, network errors, and application error recovery
+- **Security Tests**: Network security and input validation
+- **Stress Tests**: Long-running and high-load scenarios
+
+The complete test plan is documented in [TEST_PLAN.md](TEST_PLAN.md) and includes 113 specific test cases with unique identifiers, a 7-week phased execution strategy, and comprehensive success criteria.
+
+### Test Execution
+
+```bash
+# Run unit tests
+go test ./...
+
+# Run tests with coverage
+go test -cover ./...
+
+# Run tests with verbose output
+go test -v ./...
+
+# Run specific test package
+go test ./internal/bridge
+```
+
 ## License
 
 MIT License - see LICENSE file for details.
