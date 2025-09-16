@@ -22,6 +22,7 @@ build/
 dist/
 openserial
 openserial-*
+!cmd/openserial/
 
 # IDE files
 .vscode/
