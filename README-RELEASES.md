@@ -62,6 +62,14 @@ Each release includes:
 - `openserial-darwin-amd64` - macOS Intel
 - `openserial-darwin-arm64` - macOS Apple Silicon
 
+**Note for macOS users**: After downloading, you'll need to make the binary executable:
+
+```bash
+chmod +x openserial-darwin-amd64
+# or
+chmod +x openserial-darwin-arm64
+```
+
 ### Checksums
 
 - `checksums.txt` - Combined SHA256 checksums for all binaries

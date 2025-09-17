@@ -165,6 +165,11 @@ If you get a security warning when opening the macOS binary, this is normal for
 unsigned binaries. To resolve:
 
 ```bash
+# Make the binary executable
+chmod +x openserial-darwin-amd64
+# or
+chmod +x openserial-darwin-arm64
+
 # Remove quarantine attribute
 xattr -d com.apple.quarantine openserial-darwin-amd64
 # or
