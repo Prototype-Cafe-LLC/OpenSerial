@@ -16,11 +16,16 @@ RUN go mod download
 # Copy source code
 COPY . .
 
-# Build the application
+# Build the applications
 RUN CGO_ENABLED=0 GOOS=linux go build \
     -ldflags="-w -s -X main.version=${VERSION:-dev}" \
     -o openserial \
     ./cmd/openserial
+
+RUN CGO_ENABLED=0 GOOS=linux go build \
+    -ldflags="-w -s -X main.version=${VERSION:-dev}" \
+    -o tcpbridge \
+    ./cmd/tcpbridge
 
 # Final stage
 FROM alpine:3.19
@@ -32,16 +37,17 @@ RUN apk add --no-cache ca-certificates tzdata
 RUN addgroup -g 1001 -S openserial && \
     adduser -u 1001 -S openserial -G openserial
 
-# Copy binary from builder stage
+# Copy binaries from builder stage
 COPY --from=builder /app/openserial /usr/local/bin/openserial
+COPY --from=builder /app/tcpbridge /usr/local/bin/tcpbridge
 
 # Copy default configuration
 COPY --from=builder /app/configs/config.yaml /etc/openserial/config.yaml
 
 # Create directories and set permissions
-RUN mkdir -p /var/log/openserial && \
-    chown -R openserial:openserial /var/log/openserial && \
-    chmod +x /usr/local/bin/openserial
+RUN mkdir -p /var/log/openserial /var/log/tcpbridge && \
+    chown -R openserial:openserial /var/log/openserial /var/log/tcpbridge && \
+    chmod +x /usr/local/bin/openserial /usr/local/bin/tcpbridge
 
 # Switch to non-root user
 USER openserial

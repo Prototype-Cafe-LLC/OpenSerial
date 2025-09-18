@@ -11,7 +11,7 @@ services:
     container_name: openserial
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "8081:8081" # OpenSerial server port
     volumes:
       - ./configs:/etc/openserial:ro
       - /dev/ttyUSB0:/dev/ttyUSB0:rw # Adjust device path as needed
@@ -23,6 +23,29 @@ services:
     privileged: true # Required for serial device access
     networks:
       - openserial-network
+    command: ["./openserial", "-config", "/etc/openserial/server-mac.yaml"]
+
+  tcpbridge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VERSION: ${VERSION:-dev}
+    image: openserial/tcpbridge:${VERSION:-latest}
+    container_name: tcpbridge
+    restart: unless-stopped
+    ports:
+      - "8080:8080" # TCP bridge server port
+    volumes:
+      - ./configs:/etc/openserial:ro
+      - tcpbridge-logs:/var/log/tcpbridge
+    environment:
+      - TZ=UTC
+    networks:
+      - openserial-network
+    depends_on:
+      - openserial
+    command: ["./tcpbridge", "-config", "/etc/openserial/tcpbridge.yaml"]
 
   # Optional: Add a simple web interface for monitoring
   openserial-web:
@@ -41,6 +64,7 @@ services:
 
 volumes:
   openserial-logs:
+  tcpbridge-logs:
 
 networks:
   openserial-network:
