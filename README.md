@@ -54,17 +54,38 @@ Download the latest release for your platform from the [releases page](https://g
 ### Basic Usage
 
 ```bash
-# Run with default configuration
+# Run with default configuration (server mode)
 ./openserial
 
 # Run with custom configuration file
 ./openserial -config /path/to/config.yaml
+
+# Run in client mode (connect to remote server)
+./openserial -client -config /path/to/client-config.yaml
 
 # Show help
 ./openserial -help
 
 # Show version
 ./openserial -version
+```
+
+### TCP Bridge Mode Usage
+
+For cross-platform access over VPN when Windows machines don't have admin privileges:
+
+**Mac (Server Side):**
+```bash
+# Terminal 1: Start TCP bridge server
+./tcpbridge -config configs/tcpbridge.yaml
+
+# Terminal 2: Connect Serial Monitor to localhost:8081
+```
+
+**Windows (Client Side):**
+```bash
+# Update config with Mac's VPN IP address, then:
+./openserial -client -config configs/client-windows.yaml
 ```
 
 ### Configuration
@@ -114,7 +135,7 @@ The application looks for configuration files in the following order:
 
 ## Examples
 
-### Arduino/ESP32 Remote Access
+### Serial Device Remote Access
 
 ```yaml
 serial:
@@ -130,7 +151,7 @@ network:
   bind_address: "0.0.0.0"
 ```
 
-Connect to your Arduino via TCP:
+Connect to your serial device via TCP:
 
 ```bash
 telnet localhost 8080
@@ -228,11 +249,29 @@ go test ./internal/config
 
 ## Architecture
 
+### Standard Mode (Direct TCP Bridge)
+
 ```text
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
 │   Serial Port   │◄──►│   OpenSerial     │◄──►│   TCP Client    │
 │   (Device)      │    │   Bridge         │    │   (Network)     │
 └─────────────────┘    └──────────────────┘    └─────────────────┘
+```
+
+### TCP Bridge Mode (Cross-Platform VPN Access)
+
+```text
+Windows Machine (No Admin)          Mac Machine (Admin)
+┌─────────────────────────┐        ┌─────────────────────────┐
+│  UART Device            │        │  Serial Monitor         │
+│  (Serial)               │        │  (Port 8081 TX/RX)      │
+└─────────┬───────────────┘        └─────────┬───────────────┘
+          │                                  │
+          │                                  │
+┌─────────▼───────────────┐        ┌─────────▼───────────────┐
+│  OpenSerial Client      │◄──────►│  TCP Bridge Server      │
+│  (Connects to Mac:8080) │        │  (Listens: 8080)        │
+└─────────────────────────┘        └─────────────────────────┘
 ```
 
 The bridge consists of:
@@ -241,6 +280,7 @@ The bridge consists of:
 - **Network Handler**: Manages TCP server and client connections
 - **Bridge Core**: Coordinates bidirectional data forwarding
 - **Configuration**: Manages settings and validation
+- **TCP Bridge Server**: Relays data between external clients and local services
 
 ## Error Handling
 
@@ -273,7 +313,7 @@ OpenSerial includes comprehensive error handling:
 
 ### Educational & Hobby
 
-- Arduino/Raspberry Pi remote access
+- Serial device remote access
 - Electronics project development
 - Learning serial communication protocols
 
