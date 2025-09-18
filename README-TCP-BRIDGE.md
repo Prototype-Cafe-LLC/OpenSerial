@@ -1,10 +1,10 @@
 # OpenSerial TCP Bridge Solution
 
-This solution enables OpenSerial to work across VPN connections when Windows machines don't have admin privileges for firewall configuration.
+This solution enables OpenSerial to work across network connections when Windows machines don't have admin privileges for firewall configuration.
 
 ## Architecture
 
-```
+```text
 Windows Machine (No Admin)          Mac Machine (Admin)
 ┌─────────────────────────┐        ┌─────────────────────────┐
 │  UART Device            │        │  UART Device            │
@@ -46,7 +46,7 @@ Windows Machine (No Admin)          Mac Machine (Admin)
 
 ### Prerequisites
 
-- Both machines connected to the same VPN
+- Both machines connected to the same network
 - Go 1.23+ installed on both machines
 - Admin privileges on Mac machine
 - No admin privileges required on Windows
@@ -54,24 +54,28 @@ Windows Machine (No Admin)          Mac Machine (Admin)
 ### Mac Setup (Server Side)
 
 1. **Build the applications**:
+
    ```bash
    go build -o openserial-mac ./cmd/openserial
    go build -o tcpbridge-mac ./cmd/tcpbridge
    ```
 
 2. **Configure OpenSerial server**:
+
    ```bash
    cp configs/server-mac.yaml config.yaml
    # Edit config.yaml if needed (serial port, baud rate, etc.)
    ```
 
 3. **Configure TCP bridge**:
+
    ```bash
    cp configs/tcpbridge.yaml tcpbridge.yaml
    # Edit tcpbridge.yaml if needed
    ```
 
 4. **Start the services**:
+
    ```bash
    # Terminal 1: Start OpenSerial server
    ./openserial-mac -config config.yaml
@@ -88,22 +92,25 @@ Windows Machine (No Admin)          Mac Machine (Admin)
 ### Windows Setup (Client Side)
 
 1. **Build the application**:
+
    ```bash
    go build -o openserial-windows.exe ./cmd/openserial
    ```
 
 2. **Configure OpenSerial client**:
+
    ```bash
    cp configs/client-windows.yaml config.yaml
    ```
 
 3. **Update configuration**:
    - Edit `config.yaml`
-   - Change `bind_address` to Mac's VPN IP address
+   - Change `bind_address` to Mac's IP address
    - Update `listen_port` to 8080 (bridge server port)
    - Update serial port (e.g., "COM3")
 
 4. **Start OpenSerial client**:
+
    ```bash
    ./openserial-windows.exe -client -config config.yaml
    ```
@@ -111,6 +118,7 @@ Windows Machine (No Admin)          Mac Machine (Admin)
 ## Configuration Files
 
 ### Mac Server Configuration (`config.yaml`)
+
 ```yaml
 serial:
   port: "/dev/ttyUSB0"
@@ -126,6 +134,7 @@ network:
 ```
 
 ### TCP Bridge Configuration (`tcpbridge.yaml`)
+
 ```yaml
 server:
   port: 8080
@@ -141,6 +150,7 @@ clients:
 ```
 
 ### Windows Client Configuration (`config.yaml`)
+
 ```yaml
 serial:
   port: "COM3"
@@ -152,17 +162,19 @@ serial:
 
 network:
   listen_port: 8080
-  bind_address: "192.168.1.100"  # Mac's VPN IP address
+  bind_address: "192.168.1.100"  # Mac's IP address
 ```
 
-## Finding VPN IP Addresses
+## Finding IP Addresses
 
-### On Mac:
+### On Mac
+
 ```bash
 ifconfig | grep "inet " | grep -v 127.0.0.1
 ```
 
-### On Windows:
+### On Windows
+
 ```cmd
 ipconfig | findstr "IPv4"
 ```
@@ -170,19 +182,22 @@ ipconfig | findstr "IPv4"
 ## Troubleshooting
 
 ### Connection Issues
-- Verify both machines are on the same VPN
+
+- Verify both machines are on the same network
 - Check firewall settings on Mac (allow port 8080)
 - Ensure OpenSerial server is running before starting bridge
 - Check that serial ports are correct and devices are connected
 
 ### Serial Port Issues
+
 - On Mac: Check `/dev/tty*` devices
 - On Windows: Check Device Manager for COM ports
 - Ensure devices are not in use by other applications
 
 ### Network Issues
+
 - Test connectivity: `telnet <mac-ip> 8080` from Windows
-- Check VPN connection status
+- Check network connection status
 - Verify IP addresses are correct
 
 ## Benefits
@@ -191,7 +206,7 @@ ipconfig | findstr "IPv4"
 - **No admin required on Windows**: Just run the client
 - **Simple implementation**: Minimal changes to existing code
 - **Direct connection**: No cloud costs or complexity
-- **Works over VPN**: Both machines on same network
+- **Works over network**: Both machines on same network
 - **Low latency**: Direct TCP connection
 
 ## Alternative Solutions
@@ -200,7 +215,7 @@ If this approach doesn't work, consider:
 
 1. **Cloud Bridge**: More complex but works over internet
 2. **SSH Tunneling**: If SSH access is available
-3. **VPN Port Forwarding**: Configure VPN router for port forwarding
+3. **Router Port Forwarding**: Configure router for port forwarding
 4. **USB over Network**: Use USB-over-IP solutions
 
 ## Files Created

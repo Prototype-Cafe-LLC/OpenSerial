@@ -187,6 +187,8 @@ help:
 	@echo "  test               Run tests"
 	@echo "  test-coverage      Run tests with coverage"
 	@echo "  run                Build and run the application"
+	@echo "  run-bridge         Build and run TCP bridge server"
+	@echo "  run-client         Build and run in client mode"
 	@echo "  clean              Clean build artifacts"
 	@echo "  fmt                Format code"
 	@echo "  lint               Lint code"

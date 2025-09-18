@@ -16,6 +16,8 @@ and industrial applications.
 - **Bidirectional forwarding**: Serial port ↔ TCP port (TX/RX)
 - **Full serial configuration**: Baud rate, data bits, stop bits, parity, flow control
 - **TCP server mode**: Listen for incoming connections on specified ports
+- **TCP client mode**: Connect to remote servers (new in v0.2.0)
+- **TCP Bridge server**: Relay data between external clients and local services
 - **Network interface binding**: Bind to all network interfaces (0.0.0.0)
 - **Configuration files**: Store settings in YAML format
 - **Cross-platform**: Windows, macOS, and Linux support
@@ -72,7 +74,7 @@ Download the latest release for your platform from the [releases page](https://g
 
 ### TCP Bridge Mode Usage
 
-For cross-platform access over VPN when Windows machines don't have admin privileges:
+For cross-platform access when Windows machines don't have admin privileges:
 
 **Mac (Server Side):**
 ```bash
@@ -84,7 +86,7 @@ For cross-platform access over VPN when Windows machines don't have admin privil
 
 **Windows (Client Side):**
 ```bash
-# Update config with Mac's VPN IP address, then:
+# Update config with Mac's IP address, then:
 ./openserial -client -config configs/client-windows.yaml
 ```
 
@@ -122,6 +124,15 @@ network:
 
 - `listen_port`: TCP port to listen on (1-65535)
 - `bind_address`: IP address to bind to (e.g., "0.0.0.0" for all interfaces)
+
+**TCP Bridge Configuration:**
+
+- `server.port`: Port for external client connections (default: 8080)
+- `server.host`: Host to bind to (default: "0.0.0.0")
+- `target.host`: Target server hostname (default: "localhost")
+- `target.port`: Target server port (default: 8081)
+- `clients.max_connections`: Maximum concurrent connections (default: 10)
+- `clients.connection_timeout`: Connection timeout (default: "5m")
 
 ### Configuration File Locations
 
@@ -171,6 +182,22 @@ serial:
 network:
   listen_port: 502
   bind_address: "192.168.1.100"
+```
+
+### TCP Bridge Server Configuration
+
+```yaml
+server:
+  port: 8080
+  host: "0.0.0.0"
+
+target:
+  host: "localhost"
+  port: 8081
+
+clients:
+  max_connections: 10
+  connection_timeout: "5m"
 ```
 
 ## Building
@@ -258,7 +285,7 @@ go test ./internal/config
 └─────────────────┘    └──────────────────┘    └─────────────────┘
 ```
 
-### TCP Bridge Mode (Cross-Platform VPN Access)
+### TCP Bridge Mode (Cross-Platform Access)
 
 ```text
 Windows Machine (No Admin)          Mac Machine (Admin)
