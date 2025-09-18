@@ -141,3 +141,113 @@ func (c *SerialConfig) GetSerialTimeout() time.Duration {
 func (c *SerialConfig) GetReadTimeout() time.Duration {
 	return 100 * time.Millisecond
 }
+
+// TCPBridgeConfig represents the TCP bridge server configuration
+type TCPBridgeConfig struct {
+	Server  TCPBridgeServerConfig  `mapstructure:"server"`
+	Target  TargetConfig           `mapstructure:"target"`
+	Clients TCPBridgeClientsConfig `mapstructure:"clients"`
+}
+
+// TCPBridgeServerConfig represents TCP bridge server configuration
+type TCPBridgeServerConfig struct {
+	Port int    `mapstructure:"port"`
+	Host string `mapstructure:"host"`
+}
+
+// TCPBridgeClientsConfig represents TCP bridge clients configuration
+type TCPBridgeClientsConfig struct {
+	MaxConnections    int           `mapstructure:"max_connections"`
+	ConnectionTimeout time.Duration `mapstructure:"connection_timeout"`
+}
+
+// TargetConfig represents target server configuration
+type TargetConfig struct {
+	Host string `mapstructure:"host"`
+	Port int    `mapstructure:"port"`
+}
+
+// LoadTCPBridgeConfig loads TCP bridge configuration from file or creates default
+func LoadTCPBridgeConfig(configPath string) (*TCPBridgeConfig, error) {
+	viper.SetConfigName("tcpbridge")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(".")
+	viper.AddConfigPath("./configs")
+	viper.AddConfigPath("/etc/openserial")
+	viper.AddConfigPath("$HOME/.openserial")
+
+	// Set default values
+	setTCPBridgeDefaults()
+
+	// Override with config file if provided
+	if configPath != "" {
+		viper.SetConfigFile(configPath)
+	}
+
+	// Read config file
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+			return nil, fmt.Errorf("error reading config file: %w", err)
+		}
+		// Config file not found, use defaults
+	}
+
+	var config TCPBridgeConfig
+	if err := viper.Unmarshal(&config); err != nil {
+		return nil, fmt.Errorf("error unmarshaling config: %w", err)
+	}
+
+	// Validate configuration
+	if err := validateTCPBridgeConfig(&config); err != nil {
+		return nil, fmt.Errorf("invalid configuration: %w", err)
+	}
+
+	return &config, nil
+}
+
+// setTCPBridgeDefaults sets default TCP bridge configuration values
+func setTCPBridgeDefaults() {
+	// Server defaults
+	viper.SetDefault("server.port", 8080)
+	viper.SetDefault("server.host", "0.0.0.0")
+
+	// Target defaults
+	viper.SetDefault("target.host", "localhost")
+	viper.SetDefault("target.port", 8081)
+
+	// Clients defaults
+	viper.SetDefault("clients.max_connections", 10)
+	viper.SetDefault("clients.connection_timeout", "5m")
+}
+
+// validateTCPBridgeConfig validates the TCP bridge configuration values
+func validateTCPBridgeConfig(config *TCPBridgeConfig) error {
+	// Validate server configuration
+	if config.Server.Port < 1 || config.Server.Port > 65535 {
+		return fmt.Errorf("server port must be between 1 and 65535, got: %d", config.Server.Port)
+	}
+
+	if config.Server.Host == "" {
+		return fmt.Errorf("server host cannot be empty")
+	}
+
+	// Validate target configuration
+	if config.Target.Port < 1 || config.Target.Port > 65535 {
+		return fmt.Errorf("target port must be between 1 and 65535, got: %d", config.Target.Port)
+	}
+
+	if config.Target.Host == "" {
+		return fmt.Errorf("target host cannot be empty")
+	}
+
+	// Validate clients configuration
+	if config.Clients.MaxConnections < 1 {
+		return fmt.Errorf("max connections must be at least 1, got: %d", config.Clients.MaxConnections)
+	}
+
+	if config.Clients.ConnectionTimeout <= 0 {
+		return fmt.Errorf("connection timeout must be positive, got: %v", config.Clients.ConnectionTimeout)
+	}
+
+	return nil
+}

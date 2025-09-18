@@ -19,6 +19,7 @@ build:
 	@echo "Building $(BINARY_NAME)..."
 	@mkdir -p $(BUILD_DIR)
 	go build $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME) ./cmd/openserial
+	go build $(LDFLAGS) -o $(BUILD_DIR)/tcpbridge ./cmd/tcpbridge
 
 # Build for multiple platforms
 .PHONY: build-all
@@ -29,21 +30,27 @@ build-linux:
 	@echo "Building for Linux..."
 	@mkdir -p $(BUILD_DIR)/linux
 	GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -o $(BUILD_DIR)/linux/$(BINARY_NAME) ./cmd/openserial
+	GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -o $(BUILD_DIR)/linux/tcpbridge ./cmd/tcpbridge
 	GOOS=linux GOARCH=arm64 go build $(LDFLAGS) -o $(BUILD_DIR)/linux/$(BINARY_NAME)-arm64 ./cmd/openserial
+	GOOS=linux GOARCH=arm64 go build $(LDFLAGS) -o $(BUILD_DIR)/linux/tcpbridge-arm64 ./cmd/tcpbridge
 
 .PHONY: build-windows
 build-windows:
 	@echo "Building for Windows..."
 	@mkdir -p $(BUILD_DIR)/windows
 	GOOS=windows GOARCH=amd64 go build $(LDFLAGS) -o $(BUILD_DIR)/windows/$(BINARY_NAME).exe ./cmd/openserial
+	GOOS=windows GOARCH=amd64 go build $(LDFLAGS) -o $(BUILD_DIR)/windows/tcpbridge.exe ./cmd/tcpbridge
 	GOOS=windows GOARCH=arm64 go build $(LDFLAGS) -o $(BUILD_DIR)/windows/$(BINARY_NAME)-arm64.exe ./cmd/openserial
+	GOOS=windows GOARCH=arm64 go build $(LDFLAGS) -o $(BUILD_DIR)/windows/tcpbridge-arm64.exe ./cmd/tcpbridge
 
 .PHONY: build-darwin
 build-darwin:
 	@echo "Building for macOS..."
 	@mkdir -p $(BUILD_DIR)/darwin
 	GOOS=darwin GOARCH=amd64 go build $(LDFLAGS) -o $(BUILD_DIR)/darwin/$(BINARY_NAME) ./cmd/openserial
+	GOOS=darwin GOARCH=amd64 go build $(LDFLAGS) -o $(BUILD_DIR)/darwin/tcpbridge ./cmd/tcpbridge
 	GOOS=darwin GOARCH=arm64 go build $(LDFLAGS) -o $(BUILD_DIR)/darwin/$(BINARY_NAME)-arm64 ./cmd/openserial
+	GOOS=darwin GOARCH=arm64 go build $(LDFLAGS) -o $(BUILD_DIR)/darwin/tcpbridge-arm64 ./cmd/tcpbridge
 
 # Run tests
 .PHONY: test
@@ -63,6 +70,18 @@ test-coverage:
 run: build
 	@echo "Running $(BINARY_NAME)..."
 	./$(BUILD_DIR)/$(BINARY_NAME) -config configs/config.yaml
+
+# Run TCP bridge
+.PHONY: run-bridge
+run-bridge: build
+	@echo "Running TCP bridge..."
+	./$(BUILD_DIR)/tcpbridge -config configs/tcpbridge.yaml
+
+# Run in client mode
+.PHONY: run-client
+run-client: build
+	@echo "Running $(BINARY_NAME) in client mode..."
+	./$(BUILD_DIR)/$(BINARY_NAME) -client -config configs/client-windows.yaml
 
 # Clean build artifacts
 .PHONY: clean
